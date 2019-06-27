@@ -175,11 +175,34 @@ class SentsResources(object):
         except Exception:
             resp.status = falcon.HTTP_500
 
+class SimilarityResources(object):
+    """Returns similarity score between two phrases"""
+
+    def on_post(self, req, resp):
+        req_body = req.bounded_stream.read()
+        json_data = json.loads(req_body.decode('utf8'))
+        phrase1 = json_data.get('phrase1')
+        phrase2 = json_data.get('phrase2')
+        model_name = json_data.get('model', 'en')
+
+        try:
+            model = get_model(model_name)
+            similarity = Similarity(model, phrase1, phrase2)
+            resp.body = json.dumps(similarity.to_json(), sort_keys=True,
+                                   indent=2)
+            resp.content_type = 'text/string'
+            resp.append_header('Access-Control-Allow-Origin', "*")
+            resp.status = falcon.HTTP_200
+        except Exception as e:
+            resp.body = json.dumps(e, indent=2)
+            resp.status = falcon.HTTP_500
+
 
 APP = falcon.API()
 APP.add_route('/dep', DepResource())
 APP.add_route('/ent', EntResource())
 APP.add_route('/sents', SentsResources())
+APP.add_route('/similarity', SimilarityResources())
 APP.add_route('/{model_name}/schema', SchemaResource())
 APP.add_route('/models', ModelsResource())
 APP.add_route('/version', VersionResource())
