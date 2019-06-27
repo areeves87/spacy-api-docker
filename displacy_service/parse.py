@@ -71,3 +71,13 @@ class Sentences(object):
     def to_json(self):
         sents = [sent.string.strip() for sent in self.doc.sents]
         return sents
+
+
+class Similarity(object):
+    def __init__(self, nlp, phrase1, phrase2):
+        self.doc1 = nlp(phrase1)
+        self.doc2 = nlp(phrase2)
+
+    def to_json(self):
+        similarity = self.doc1.similarity(self.doc2)
+        return [str(similarity)]
