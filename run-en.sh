@@ -1,0 +1,1 @@
+docker run -p "127.0.0.1:8000:80" spacy-api-docker:en
